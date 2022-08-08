@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <style>
+        body {
+            margin: 0px;
+        }
+
+        .main {
+            width: 900px;
+            margin-left: calc(50% - 450px);
+            height: 100%;
+        }
+
+        .headForm {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 15px;
+            flex-direction: column;
+        }
+
+        .inputform {
+            width: 100%;
+            height: 60px;
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .btnForm {
+            width: 440px;
+            margin-left: calc(50% - 220px);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .list {
+            width: 440px;
+            margin-left: calc(50% - 160px);
+        }
+    </style>
+
+</head>
+<body>
+<div class="main">
+  <div class="headForm">
+    <h2>학생 점수 관리 시스템</h2>
+    <br>
+    <img src = "{{ url_for('static', filename='image3.jpg') }}">
+  </div>
+    <br>
+  <div class="inputForm">
+    학생이름: <input type="text" id="student-name" />
+    국어: <input type="int" id="korean-score" />
+    수학: <input type="int" id="math-score" />
+    영어: <input type="int" id="english-score" />
+  </div>
+    <br>
+  <div class="btnForm" align="center">
+    <button onclick="saveBtn()">저장</button>
+    <button onclick="deleteBtn()">삭제</button>
+    <button onclick="updateBtn()">수정</button>
+    <br>
+    <br>
+    국어: <input type="radio" name="radioBtn" value="korean_s" />
+    수학: <input type="radio" name="radioBtn" value="mathmatics_s" />
+    영어: <input type="radio" name="radioBtn" value="english_s" />
+    <button onclick="sortBtn()">정렬</button>
+  </div>
+    <br>
+    <br>
+  <div class="list">
+    <ul id="student-list">
+
+    </ul>
+  </div>
+    <script>
+        $.ajax({
+            type: "GET",
+            url: "/student",
+            data: {},
+            success: function(response) {
+                for (let student of response) {
+                    $("#student-list").append(`
+                        <li>
+                            ${student.name}, 국어: ${student.korean_s}, 수학: ${student.mathmatics_s}, 영어: ${student.english_s}
+                        </li>
+                    `)
+                }
+            }
+        })
+
+        function saveBtn() {
+            const clientName = $("#student-name").val()
+            const clientKorean = $("#korean-score").val()
+            const clientMathmatics = $("#math-score").val()
+            const clientEnglish = $("#english-score").val()
+            $.ajax({
+                type: "POST",
+                url: "/student",
+                data: {
+                    name: clientName,
+                    korean_s: clientKorean,
+                    mathmatics_s: clientMathmatics,
+                    english_s: clientEnglish
+                },
+                success: function(response) {
+                    location.reload()
+                }
+            })
+        }
+
+        function deleteBtn() {
+            const clientName = $("#student-name").val()
+            $.ajax({
+                type: "DELETE",
+                url: `/student?name=${clientName}`,
+                data: {},
+                success: function(response) {
+                    location.reload()
+                }
+            })
+        }
+
+        function updateBtn() {
+            const clientName = $("#student-name").val()
+            const clientKorean = $("#korean-score").val()
+            const clientMathmatics = $("#math-score").val()
+            const clientEnglish = $("#english-score").val()
+            $.ajax({
+                type: "PUT",
+                url: "/student",
+                data: {
+                    name: clientName,
+                    korean_s: clientKorean,
+                    mathmatics_s: clientMathmatics,
+                    english_s: clientEnglish
+                },
+                success: function(response) {
+                    location.reload()
+                }
+            })
+        }
+
+        function sortBtn() {
+            $.ajax({
+                type: "GET",
+                url: "/student",
+                data: {},
+                success: function(response) {
+                    for (let student of response) {
+                        $("#student-list").append(`
+                            <li>
+                                ${student.name}, 국어: ${student.korean_s}, 수학: ${student.mathmatics_s}, 영어: ${student.english_s}
+                            </li>
+                        `)
+                    }
+                }
+            })
+
+            let index = $('input[name=radioBtn]:checked').val();
+            $('.list li').each(function (index, item) {
+            $(item).addClass('li_0' + index);
+            });
+        }
+    </script>
+</div>
+</body>
+</html>
